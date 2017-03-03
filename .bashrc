@@ -181,7 +181,13 @@ weather() {
 }
 
 # Calculator
-= () { echo "$*" | bc -l; }
+= () { 
+    if [ -z "$@" ]; then
+        echo "[B]asic [C]alculator:" && bc -lq;
+    else
+        echo "$*" | bc -l;
+    fi
+}
 
 
 # ===== Tools =====
@@ -309,7 +315,7 @@ alias la='cd "$OLDPWD"'
     cd $d
 }
 # don't nead to write cd
-shopt -s autocd
+#shopt -s autocd
 
 
 
