@@ -211,6 +211,36 @@ alias ssh-log-last='sudo grep sshd /var/log/auth.log | grep '\''Failed password'
 # Info
 alias bit-system='getconf LONG_BIT'
 alias myip='curl icanhazip.com'
+ipinfo() { curl --silent https://ipinfo.io/$(dig +short $1); echo; }
+now(){
+    color="\e[95m"
+    def="\e[39m"
+    echo -e "${color}Date: ${def} $(date +%F)"
+    echo -e "${color}Month:${def} $(date +%B)"
+    echo -e "${color}Day:  ${def} $(date +%A)"
+    echo -e "${color}Time: ${def} $(date +%T)"
+    echo -e "${color}Week: ${def} $(date +%W)"
+    echo -e "${color}Unix: ${def} $(date +%s)"
+    echo -e "${color}Zone: ${def} $(date +'%Z %:z')"
+}
+alias datenow="date +\"%F\""
+alias timenow="date +\"%T\""
+alias ascii_table='man ascii'
+alias key-valu='showkey -a'
+
+# hash
+alias sha="shasum"
+alias sha1="sha1sum"
+alias sha384="sha384sum"
+alias sha224="sha224sum"
+alias sha256="sha256sum"
+alias sha512="sha512sum"
+
+alias md4="openssl md4"
+alias md5="openssl md5"
+
+alias base64="openssl base64"
+
 
 # Internet
 alias internet-conection='lsof -P -i -n'
@@ -301,6 +331,10 @@ alias cd..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
+alias .......='cd ../../../../../..'
+alias ........='cd ../../../../../../..'
+alias .........='cd ../../../../../../../..'
 alias la='cd "$OLDPWD"'
 ..() {
     local d=""
