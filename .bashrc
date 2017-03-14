@@ -14,22 +14,38 @@ esac
 
 #Set different terminal colors for different computers
 case "$HOSTNAME" in
-        "Hugin")
-            dir_color=006
-            host_color=004
-            ;;
-        "Oden")
-            dir_color=009
-            host_color=004
-            ;;
-        "dns")
-            dir_color=190
-            host_color=178
-            ;;
-        *)
-            dir_color=013
-            host_color=004
+    "Hugin")
+        dir_color=006
+        host_color=004
+        ;;
+    "Oden")
+        dir_color=009
+        host_color=004
+        ;;
+    "dns")
+        dir_color=190
+        host_color=178
+        ;;
+    *)
+        dir_color=013
+        host_color=004
 esac
+
+# Generate console color depending on the hostname
+ord() {
+  printf '%d' "'$1"
+}
+nub=0
+file="/etc/hostname"
+while read -n1 c; do
+    #echo "$c -> $(ord $c)"
+    nub=$(( $nub + $(ord $c)))
+
+done < $file
+nub=$(( $nub % 255 ))
+dir_color=$nub
+
+
 
 
 # Ask to install if not installd. 
@@ -282,6 +298,7 @@ alias Sound-min='amixer -D pulse sset Master 1%'
 alias Sound-max='amixer -D pulse sset Master 100%'
 alias Sound-inc='amixer -D pulse sset Master 5%+'
 alias Sound-dec='amixer -D pulse sset Master 5%-'
+alias beep='(paplay "/usr/share/sounds/ubuntu/notifications/Xylo.ogg" &)'
 
 # Screen brightness controler
 alias Screen-brightness='xbacklight -set'
@@ -290,6 +307,20 @@ alias Screen-min='xbacklight -set 1'
 alias Screen-max='xbacklight -set 100'
 alias Screen-inc='xbacklight -inc 10'
 alias Screen-dec='xbacklight -dec 10'
+
+# Battery
+battery(){
+    PERCENTAGE=$(upower -i "$(upower -e | grep battery)" | awk -F: '/percentage/{gsub(/^\s+|[\s%]+$/, "", $2); print $2}' | tr -d '[:space:]')
+    TIME_REMAINING=$(upower -i "$(upower -e | grep battery)" | awk -F: '/time to empty/{gsub(/^\s+|\s+$/, "", $2); print $2}'| tr -d '[:space:]')
+    if [[ "$PERCENTAGE" -gt "30" ]]; then
+        PERCENTAGE_COLOR='\033[0;32m'
+    elif [[ "$PERCENTAGE" -gt "10" ]]; then
+        PERCENTAGE_COLOR='\033[1;33m'
+    else
+        PERCENTAGE_COLOR='\033[0;31m'
+    fi
+    printf "${PERCENTAGE_COLOR}${PERCENTAGE}%%${PLAIN} (${TIME_REMAINING})\n"
+}
 
 # ===== Graphics Software =====
 alias dopen='gnome-open'
