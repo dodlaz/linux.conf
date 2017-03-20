@@ -31,21 +31,40 @@ case "$HOSTNAME" in
         host_color=004
 esac
 
+# ========================
 # Generate console color depending on the hostname
+# colors * http://misc.flogisoft.com/bash/tip_colors_and_formatting
 ord() {
-  printf '%d' "'$1"
+    # return asci value for letter
+    printf '%d' "'$1"
 }
+containsNotElement () {
+    # check if value is not in array
+    local e
+    for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 1; done
+    return 0
+}
+
+exclude_colors=(0 16 17 232 233 234 235 236 237 238 239 257 258 259)
 nub=0
 file="/etc/hostname"
+
+# convert string to nubber
 while read -n1 c; do
     #echo "$c -> $(ord $c)"
     nub=$(( $nub + $(ord $c)))
-
 done < $file
-nub=$(( $nub % 255 ))
+
+# convert nuber to leagal nuber
+nub=$(( $nub % 256 ))
+until containsNotElement $nub "${exclude_colors[@]}"
+do
+    nub=$(( $nub + 1 ))
+    nub=$(( $nub % 259 ))
+done
+# Set color
 dir_color=$nub
-
-
+# =====================================
 
 
 # Ask to install if not installd. 
@@ -134,12 +153,8 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-
-
 # define color to additional file types
 export LS_COLORS=$LS_COLORS:"*.h=01;35":"*.cc=01;35":"*.txt=01;33":"*.pdf=01;31"
-
-
 
 
 # ===== FUN =====
@@ -243,6 +258,23 @@ alias datenow="date +\"%F\""
 alias timenow="date +\"%T\""
 alias ascii_table='man ascii'
 alias key-valu='showkey -a'
+alias historyOn='set -o history'
+alias historyOff='set +o history'
+
+# print
+alias prettyjson='python -m json.tool'
+tableprint() {
+    if [ -z "$1" ]; then
+       ( >&2 echo "No arguments:" )
+    elif [ -z "$2" ] && [ ! -t 0 ]; then
+        column -t -s"$1"
+    elif [ ! -z "$1" ] && [ ! -z "$2" ]; then
+        column -t -s"$1" "$2"
+    else
+        ( >&2 echo "error" )
+    fi
+}
+alias tprint="tableprint"
 
 # hash
 alias sha="shasum"
@@ -310,8 +342,8 @@ alias Screen-dec='xbacklight -dec 10'
 
 # Battery
 battery(){
-    PERCENTAGE=$(upower -i "$(upower -e | grep battery)" | awk -F: '/percentage/{gsub(/^\s+|[\s%]+$/, "", $2); print $2}' | tr -d '[:space:]')
-    TIME_REMAINING=$(upower -i "$(upower -e | grep battery)" | awk -F: '/time to empty/{gsub(/^\s+|\s+$/, "", $2); print $2}'| tr -d '[:space:]')
+    PERCENTAGE=$(upower -i "$(upower -e | grep battery)" | awk -F: '/percentage/{gsub(/^\s+|[\s%]+$/, "", $2); print $2}' | awk '{$1=$1};1')
+    TIME_REMAINING=$(upower -i "$(upower -e | grep battery)" | awk -F: '/time to empty/{gsub(/^\s+|\s+$/, "", $2); print $2}' | awk '{$1=$1};1')
     if [[ "$PERCENTAGE" -gt "30" ]]; then
         PERCENTAGE_COLOR='\033[0;32m'
     elif [[ "$PERCENTAGE" -gt "10" ]]; then
@@ -319,7 +351,13 @@ battery(){
     else
         PERCENTAGE_COLOR='\033[0;31m'
     fi
-    printf "${PERCENTAGE_COLOR}${PERCENTAGE}%%${PLAIN} (${TIME_REMAINING})\n"
+    echo -ne "${PERCENTAGE_COLOR}${PERCENTAGE}%${PLAIN}"
+    if [ ! -z "$TIME_REMAINING" ]; then
+        echo -e " (${TIME_REMAINING})"
+    else
+        echo #newLine
+    fi
+    
 }
 
 # ===== Graphics Software =====
