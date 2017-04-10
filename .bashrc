@@ -60,7 +60,7 @@ nub=$(( $nub % 256 ))
 until containsNotElement $nub "${exclude_colors[@]}"
 do
     nub=$(( $nub + 1 ))
-    nub=$(( $nub % 259 ))
+    nub=$(( $nub % 229 ))
 done
 # Set color
 dir_color=$nub
@@ -205,7 +205,7 @@ currency-conv() {
 # Weather
 weather() {
     if [ -z "$1" ]; then
-        curl -k "https://wttr.in/ryd"
+        curl -k "https://wttr.in/Linköping"
     else
         curl -k "https://wttr.in/$1"
     fi
