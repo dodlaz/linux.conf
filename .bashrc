@@ -11,26 +11,7 @@ case $- in
       *) return;;
 esac
 
-
 #Set different terminal colors for different computers
-case "$HOSTNAME" in
-    "Hugin")
-        dir_color=006
-        host_color=004
-        ;;
-    "Oden")
-        dir_color=009
-        host_color=004
-        ;;
-    "dns")
-        dir_color=190
-        host_color=178
-        ;;
-    *)
-        dir_color=013
-        host_color=004
-esac
-
 # ========================
 # Generate console color depending on the hostname
 # colors * http://misc.flogisoft.com/bash/tip_colors_and_formatting
@@ -262,16 +243,16 @@ alias historyOn='set -o history'
 alias historyOff='set +o history'
 
 # print
-alias prettyjson='python -m json.tool'
+alias prettyjson='python3 -m json.tool'
 tableprint() {
     if [ -z "$1" ]; then
-       ( >&2 echo "No arguments:" )
+       ( >&2 echo -e "No arguments:\n1. tableprint <delimiter> <file>\n2. <file> | tableprint <delimiter>" )
     elif [ -z "$2" ] && [ ! -t 0 ]; then
         column -t -s"$1"
     elif [ ! -z "$1" ] && [ ! -z "$2" ]; then
         column -t -s"$1" "$2"
     else
-        ( >&2 echo "error" )
+        ( >&2 echo -e "error\n1. tableprint <delimiter> <file>\n2. <file> | tableprint <delimiter>" )
     fi
 }
 alias tprint="tableprint"
