@@ -1,0 +1,79 @@
+#!/bin/bash
+
+
+declare -A cur
+cur["gbp"]="GBP"
+cur["pund"]="GBP"
+cur["£"]="GBP"
+cur["sek"]="SEK"
+cur["kr"]="SEK"
+cur["usd"]="USD"
+cur["dollar"]="USD"
+cur["$"]="USD"
+cur["eur"]="EUR"
+cur["euro"]="EUR"
+cur["€"]="EUR"
+cur["btc"]="BTC"
+cur["bitcoin"]="BTC"
+cur["฿"]="BTC"
+
+
+currency() {
+    if [[ $1 = *[[:digit:]]* && $2 != "" && $3 != "" ]]; then
+        c="${cur[${3,,}]}"
+        for n in $2; do
+            b="${cur[${n,,}]}"
+            res="$(wget -qO- "http://www.google.com/finance/converter?a=$1&from=$b&to=$c" |  sed '/res/!d;s/<[^>]*>//g')";
+            if [[ $res != "" ]]; then
+                echo $res
+            else
+                echo "$1 $b = $1 $c"
+            fi
+        done
+    fi
+}
+
+HELP() {
+    echo -e "Help:\ncurrency-conv [OPTION]... [VALUE] [[FROM] [TO]]"
+    exit 0;
+}
+LIST() {
+    echo -e "Swedish Krona: \t SEK (kr)
+USE Dollar: \t USD ($)
+British Pound: \t GBP (£)
+European Euro: \t EUR (€)
+Bitcoin: \t BTC (฿)";
+    exit 0;
+}
+
+
+while getopts ':hl' flag; do
+  case "${flag}" in
+    h) HELP;;
+    l) LIST;;
+    *)
+        echo -e "Unexpected option ${flag}";
+        exit -1;
+        ;;
+  esac
+done
+
+
+if [[ $1 = *[[:digit:]]* && $2 != "" && $3 != "" ]]; then
+    c="$(echo $1 | bc -l)"
+    currency $c $2 $3
+elif [[ $1 = *[[:digit:]]* && $2 != "" ]]; then
+    c="$(echo $1 | bc -l)"
+    currency $c "SEK USD EUR GBP BTC" $2
+elif [[ $1 = *[[:digit:]]* ]]; then
+    c="$(echo $1 | bc -l)"
+    currency $c "SEK USD EUR GBP BTC" SEK            
+elif [[ $1 == "" ]]; then
+    currency 1 "SEK USD EUR GBP BTC" SEK
+fi
+
+
+
+
+
+
