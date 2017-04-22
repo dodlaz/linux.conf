@@ -20,27 +20,53 @@ cur["฿"]="BTC"
 ColorOff='\033[0m'
 Color='\033[1;31m'
 
+#Flags
+flagSelf=false
+flagNewLine=false
+
 currency() {
     if ! [[ $1 = *[[:digit:]]* && $2 != "" && $3 != "" ]]; then
-        echo "Error" >2
+        echo "Error" >&2
         exit 3
     fi
+    f=false
 
+    #From
     for e in $2; do
-        c="${cur[${e,,}]}"
+        b="${cur[${e,,}]}"
+        if [ -z $b ]; then
+            b="${e^^}"
+        fi
+
+        #new line
+        if [[ "$flagNewLine" == true && "$f" == true ]]; then
+            echo ""
+        fi
+        f=true
+
+        #To
         for n in $3; do
-            b="${cur[${n,,}]}"
-            res="$(wget -qO- "http://www.google.com/finance/converter?a=$1&from=$c&to=$b" |  sed '/res/!d;s/<[^>]*>//g')";
- 
-            if [[ $res != "" ]]; then
-                echo -ne "$Color$(echo -n $res | cut -d' ' -f1) $ColorOff"
-                echo -ne "$(echo $res | cut -d' ' -f2-3)"
-                echo -ne "$Color $(echo -n $res | cut -d' ' -f4) $ColorOff"
-                echo -ne $res | cut -d' ' -f5-
-            else
+            c="${cur[${n,,}]}"
+            if [ -z $c ]; then
+                c="${n^^}"
+            fi    
+            if [[ "$b" != "$c" ]]; then
+                result="$(wget -qO- "http://www.google.com/finance/converter?a=$1&from=$b&to=$c" |  sed '/res/!d;s/<[^>]*>//g')";
+                if [[ "$result" != "" ]]; then
+                    echo -ne "$Color$(echo -n $result | cut -d' ' -f1) $ColorOff"
+                    echo -ne "$(echo $result | cut -d' ' -f2-3)"
+                    echo -ne "$Color $(echo -n $result | cut -d' ' -f4) $ColorOff"
+                    echo -ne $result | cut -d' ' -f5-
+                else
+                    echo "Error: Converting $b to $c" >&2
+                fi
+            fi
+            
+            #X -> X
+            if [[ "$b" == "$c" && "$flagSelf" == true ]]; then
                 echo -e "$Color$1$ColorOff $b = $Color$1$ColorOff $c"
             fi
-        done
+        done        
     done
 }
 
@@ -49,17 +75,22 @@ HELP() {
     exit 0;
 }
 LIST() {
-    echo -e "Swedish Krona: \t SEK (kr)
-USE Dollar: \t USD ($)
-British Pound: \t GBP (£)
-European Euro: \t EUR (€)
-Bitcoin: \t BTC (฿)";
+    echo -e "Swedish Krona: \t ${Color}SEK${ColorOff} (${Color}kr${ColorOff})"
+    echo -e "USE Dollar: \t ${Color}USD${ColorOff} (${Color}\$${ColorOff})"
+    echo -e "British Pound: \t ${Color}GBP${ColorOff} (${Color}£${ColorOff})"
+    echo -e "European Euro: \t ${Color}EUR${ColorOff} (${Color}€${ColorOff})"
+    echo -e "Bitcoin: \t ${Color}BTC${ColorOff} (${Color}฿${ColorOff})";
     exit 0;
 }
 
 
-while getopts ':v:f:t:hl' flag; do
+while getopts ':v:f:t:hlsrn' flag; do
   case "${flag}" in
+
+    n) flagNewLine=true ;;
+    s) flagSelf=true ;;
+    r) Color='' ;;
+
     h) HELP;;
     l) LIST;;
     
@@ -68,12 +99,15 @@ while getopts ':v:f:t:hl' flag; do
     t) to=${OPTARG}    ;;
     
     *)
-        (>&2 echo -e "Unexpected option ${flag}");
+        echo -e "Unexpected option ${flag}" >&2;
         exit 1;
         ;;
   esac
 done
 shift $((OPTIND-1))
+
+
+
 
 args=( "$@" )
 n=0
@@ -91,8 +125,10 @@ if [ -z "$to" ]; then
 fi
 
 # Check if amount is a nubber
-if ! [[ $value = *[[:digit:]]* ]] ; then
-   echo "error: Not a number" >&2
+if [[ $value == "" ]]; then
+    value=1 #defult amount 1
+elif ! [[ $value = *[[:digit:]]* ]] ; then
+   echo "Error: Not a number" >&2
    exit 2
 else
     value="$(echo $value | bc -l)"
@@ -103,11 +139,9 @@ fi
 if [[ $value != "" && $from != "" && $to != "" ]]; then
     currency $value "$from" "$to"
 elif [[ $value != "" && $from != "" ]]; then
-    currency $value "SEK USD EUR GBP BTC" "$from"
+    currency $value "$from" "SEK USD EUR GBP BTC"
 elif [[ $value != "" ]]; then
     currency $value "SEK USD EUR GBP BTC" "SEK"            
-elif [[ $value == "" ]]; then
-    currency 1 "SEK USD EUR GBP BTC" "SEK"
 fi
 
 
