@@ -17,6 +17,8 @@ cur["btc"]="BTC"
 cur["bitcoin"]="BTC"
 cur["฿"]="BTC"
 
+LIST="currency.list"
+
 ColorOff='\033[0m'
 Color='\033[1;31m'
 
@@ -29,13 +31,17 @@ currency() {
         echo "Error" >&2
         exit 3
     fi
-    f=false
+    local f=false
 
     #From
-    for e in $2; do
-        b="${cur[${e,,}]}"
-        if [ -z $b ]; then
-            b="${e^^}"
+    for m in $2; do
+        #Get currency code
+        fList="$(grep -i ":$m:" $LIST)"        
+        if [ -z "$fList" ]; then
+            echo "Error: Can't convert \"$m\""
+            exit 5
+        else
+            fCode="$(echo "$fList" | cut -d':' -f2)"
         fi
 
         #new line
@@ -46,25 +52,32 @@ currency() {
 
         #To
         for n in $3; do
-            c="${cur[${n,,}]}"
-            if [ -z $c ]; then
-                c="${n^^}"
-            fi    
-            if [[ "$b" != "$c" ]]; then
-                result="$(wget -qO- "http://www.google.com/finance/converter?a=$1&from=$b&to=$c" |  sed '/res/!d;s/<[^>]*>//g')";
+            #Get currency code
+            tList="$(grep -i ":$n:" $LIST)"        
+            if [ -z "$tList" ]; then
+                echo "Error: Can't convert \"$n\""
+                exit 5
+            else
+                tCode="$(echo "$tList" | cut -d':' -f2)"
+            fi
+
+
+
+            if [[ "$fCode" != "$tCode" ]]; then
+                result="$(wget -qO- "http://www.google.com/finance/converter?a=$1&from=$fCode&to=$tCode" |  sed '/res/!d;s/<[^>]*>//g')";
                 if [[ "$result" != "" ]]; then
                     echo -ne "$Color$(echo -n $result | cut -d' ' -f1) $ColorOff"
                     echo -ne "$(echo $result | cut -d' ' -f2-3)"
                     echo -ne "$Color $(echo -n $result | cut -d' ' -f4) $ColorOff"
                     echo -ne $result | cut -d' ' -f5-
                 else
-                    echo "Error: Converting $b to $c" >&2
+                    echo "Error: Converting $fCode to $tCode" >&2
                 fi
             fi
             
             #X -> X
-            if [[ "$b" == "$c" && "$flagSelf" == true ]]; then
-                echo -e "$Color$1$ColorOff $b = $Color$1$ColorOff $c"
+            if [[ "$fCode" == "$tCode" && "$flagSelf" == true ]]; then
+                echo -e "$Color$1$ColorOff $fCode = $Color$1$ColorOff $tCode"
             fi
         done        
     done
@@ -75,11 +88,7 @@ HELP() {
     exit 0;
 }
 LIST() {
-    echo -e "Swedish Krona: \t ${Color}SEK${ColorOff} (${Color}kr${ColorOff})"
-    echo -e "USE Dollar: \t ${Color}USD${ColorOff} (${Color}\$${ColorOff})"
-    echo -e "British Pound: \t ${Color}GBP${ColorOff} (${Color}£${ColorOff})"
-    echo -e "European Euro: \t ${Color}EUR${ColorOff} (${Color}€${ColorOff})"
-    echo -e "Bitcoin: \t ${Color}BTC${ColorOff} (${Color}฿${ColorOff})";
+    cat $LIST
     exit 0;
 }
 
