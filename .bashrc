@@ -182,7 +182,7 @@ currency-conv() {
         echo -e "Bitcoin: \t BTC (฿)"
     fi
 }    
-   
+
 # Weather
 weather() {
     if [ -z "$1" ]; then
@@ -212,10 +212,21 @@ alias network-scan-192.168.1.1='nmap -sn 192.168.1.1/24'
 # Commands
 alias du='du -kh'    # Makes a more readable output.
 alias df='df -kTh'
-alias ll='ls -alhF'
 alias utop='top -u $USER'
 alias print-ram='sudo dd if=/dev/mem | cat | strings'
 alias mount='mount |column -t'
+ll(){
+    #open files and list files in directorys
+    #alias ll='ls -alhF'
+    if [ -z "$1" ]; then
+        ls -alhF
+    elif [ -f "$1" ]; then
+        less "$1"
+    else
+        ls -alhF "$1"
+    fi
+}
+
 
 # SSH
 alias ssh-log-last='sudo grep sshd /var/log/auth.log | grep '\''Failed password'\'' | tail -n 5'
@@ -244,18 +255,32 @@ alias historyOff='set +o history'
 
 # print
 alias prettyjson='python3 -m json.tool'
-tableprint() {
-    if [ -z "$1" ]; then
-       ( >&2 echo -e "No arguments:\n1. tableprint <delimiter> <file>\n2. <file> | tableprint <delimiter>" )
-    elif [ -z "$2" ] && [ ! -t 0 ]; then
-        column -t -s"$1"
-    elif [ ! -z "$1" ] && [ ! -z "$2" ]; then
-        column -t -s"$1" "$2"
+tableless() {
+    if [ ! -t 0 ] && [ ! -z "$1" ]; then
+        # cat /etc/passwd | less :
+        column -t -s"$1" | less
+    elif [ -a "$1" ] && [ ! -z "$2" ]; then
+        # less /etc/passwd :
+        column -t -s"$2" "$1" | less
+    elif [ -a "$2" ] && [ ! -z "$1" ]; then
+        # less : /etc/passwd
+        column -t -s"$1" "$2" | less
+    elif [ ! -t 0 ] && [ -z "$1" ]; then
+        # cat /etc/passwd | less
+        less
+    elif [ -a "$1" ]; then
+        # less /etc/passwd
+        less "$1"
     else
-        ( >&2 echo -e "error\n1. tableprint <delimiter> <file>\n2. <file> | tableprint <delimiter>" )
+        echo "No arguments:"
+        echo "*. tableless <file>"
+        echo "*. tableless <delimiter> <file>"
+        echo "*. tableless <file> <delimiter>"
+        echo "*. cat <file> | tableless"
+        echo "*. cat <file> | tableless <delimiter>"
     fi
 }
-alias tprint="tableprint"
+alias less="tableless"
 
 # hash
 alias sha="shasum"

@@ -1,22 +1,5 @@
 #!/bin/bash
 
-
-declare -A cur
-cur["gbp"]="GBP"
-cur["pund"]="GBP"
-cur["£"]="GBP"
-cur["sek"]="SEK"
-cur["kr"]="SEK"
-cur["usd"]="USD"
-cur["dollar"]="USD"
-cur["$"]="USD"
-cur["eur"]="EUR"
-cur["euro"]="EUR"
-cur["€"]="EUR"
-cur["btc"]="BTC"
-cur["bitcoin"]="BTC"
-cur["฿"]="BTC"
-
 LIST="currency.list"
 
 ColorOff='\033[0m'
@@ -45,10 +28,7 @@ currency() {
         fi
 
         #new line
-        if [[ "$flagNewLine" == true && "$f" == true ]]; then
-            echo ""
-        fi
-        f=true
+        if [[ "$flagNewLine" == true && "$f" == true ]]; then echo ""; fi; f=true
 
         #To
         for n in $3; do
@@ -62,7 +42,6 @@ currency() {
             fi
 
 
-
             if [[ "$fCode" != "$tCode" ]]; then
                 result="$(wget -qO- "http://www.google.com/finance/converter?a=$1&from=$fCode&to=$tCode" |  sed '/res/!d;s/<[^>]*>//g')";
                 if [[ "$result" != "" ]]; then
@@ -74,11 +53,13 @@ currency() {
                     echo "Error: Converting $fCode to $tCode" >&2
                 fi
             fi
+
             
             #X -> X
             if [[ "$fCode" == "$tCode" && "$flagSelf" == true ]]; then
                 echo -e "$Color$1$ColorOff $fCode = $Color$1$ColorOff $tCode"
             fi
+
         done        
     done
 }
@@ -93,19 +74,19 @@ LIST() {
 }
 
 
-while getopts ':v:f:t:hlsrn' flag; do
+while getopts ':v:f:t:hlscn' flag; do
   case "${flag}" in
 
-    n) flagNewLine=true ;;
-    s) flagSelf=true ;;
-    r) Color='' ;;
+    n) flagNewLine=true;;
+    s) flagSelf=true;;
+    c) Color='';;
 
     h) HELP;;
     l) LIST;;
     
-    v) value=${OPTARG} ;;
-    f) from=${OPTARG}  ;;
-    t) to=${OPTARG}    ;;
+    v) value=${OPTARG};;
+    f) from=${OPTARG};;
+    t) to=${OPTARG};;
     
     *)
         echo -e "Unexpected option ${flag}" >&2;
