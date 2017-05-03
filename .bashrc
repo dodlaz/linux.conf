@@ -26,7 +26,7 @@ containsNotElement () {
     return 0
 }
 
-exclude_colors=(0 16 17 232 233 234 235 236 237 238 239 257 258 259)
+exclude_colors=(0 16 17 232 233 234 235 236 237 238 239 257 258 259 254 255 256)
 nub=0
 file="/etc/hostname"
 
