@@ -61,7 +61,7 @@ export HISTTIMEFORMAT="| %Y-%M-%d %H:%M:%S | "
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
-export HISTIGNORE="&:[ ]*"
+export HISTIGNORE="&:ls:[bf]g:exit:pwd:clear:jobs:la:echo:..:...:....:.....:......:[ \t]*"
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -195,7 +195,7 @@ weather() {
 # Calculator
 = () { 
     if [ -z "$@" ]; then
-        echo "[B]asic [C]alculator:" && bc -lq;
+        bc -lq;
     else
         echo "$*" | bc -l;
     fi
@@ -254,6 +254,23 @@ alias historyOn='set -o history'
 alias historyOff='set +o history'
 
 # print
+dprint(){
+    reD='^[0-9]+,[0-9]+$'
+    reI='^[0-9]+$'
+    while read -r line ; do
+        value="$(echo $line| tr "." ",")"
+        if [[ $value =~ $reI ]] ; then
+            printf "%'d" "$value"
+        elif [[ $value =~ $reD ]] ; then
+            if [[ $1 = *[[:digit:]]* ]] ; then
+                printf "%'0.$1f" "$value"
+            else
+                printf "%'0.2f" "$value"
+            fi
+        fi
+        echo ""
+    done
+}
 alias prettyjson='python3 -m json.tool'
 tableless() {
     if [ ! -t 0 ] && [ ! -z "$1" ]; then
@@ -273,15 +290,15 @@ tableless() {
         less "$1"
     else
         echo "No arguments:"
-        echo "*. tableless <file>"
-        echo "*. tableless <delimiter> <file>"
-        echo "*. tableless <file> <delimiter>"
-        echo "*. cat <file> | tableless"
-        echo "*. cat <file> | tableless <delimiter>"
+        echo "* tableless <file>"
+        echo "* tableless <delimiter> <file>"
+        echo "* tableless <file> <delimiter>"
+        echo "* cat <file> | tableless"
+        echo "* cat <file> | tableless <delimiter>"
     fi
 }
 alias less="tableless"
-
+alias tprint="column -t -s"$1" "$2""
 # hash
 alias sha="shasum"
 alias sha1="sha1sum"

@@ -34,7 +34,11 @@
 	    '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
 
-
+(setq-default tab-width 2)
+(setq tab-width 2)
+(setq-default indent-tabs-mode t)
+(setq-default tab-always-indent 'complete)
+(electric-indent-local-mode 1)
 
 ;;yes to y
 (defalias 'yes-or-no-p 'y-or-n-p)
