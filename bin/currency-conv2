@@ -175,7 +175,7 @@ ColorOff='\033[0m'
 Color='\033[1;31m'
 
 #Flags
-flagNewLine=false
+flagNewLine=true
 decimal=""
 delimiter=""
 raw=false
@@ -215,9 +215,6 @@ currency() {
         else
             fCode="$(echo "$fList" | cut -d':' -f2)"
         fi
-        
-        #new line
-        if [[ "$flagNewLine" == true && "$f" == true ]]; then echo ""; fi; f=true
         
         #To
         for n in $to; do
@@ -278,7 +275,7 @@ Options:
  -h, display this help and exit
  -V, output version information and exit
 
-For more details see flock(1).
+For more details see ...(1).
 "
     exit 0;
 }
@@ -288,13 +285,14 @@ LIST() {
 }
 VERSION() {
     echo "currency-conv 0.1.2"
+    exit 0;
 }
 
 
 while getopts ':v:f:t:s:d:hrlcnV' flag; do
   case "${flag}" in
 
-    n) flagNewLine=true;;
+    n) flagNewLine=false;;
     c) Color=''; ColorOff='';;
     d) decimal=${OPTARG};;
     s) delimiter=${OPTARG};;
@@ -340,7 +338,17 @@ else
         to="${args[$n]}"
         ((n++))
     fi
-    currency "$value" "$from" "$to"
+
+    if [ -z "$value" ]; then
+        currency "$value" "$from" "$to"
+    else
+        for v in $value; do
+            #new line
+            if [[ "$flagNewLine" == true && "$f" == true ]]; then echo ""; fi; f=true
+            currency "$v" "$from" "$to"
+        done
+    fi
+
 fi
 
 
