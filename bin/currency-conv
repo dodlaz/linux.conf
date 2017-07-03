@@ -289,13 +289,13 @@ VERSION() {
 }
 
 
-while getopts ':v:f:t:s:d:hrlcnV' flag; do
+while getopts ':v:f:t:d:D:hrlcnV' flag; do
   case "${flag}" in
 
     n) flagNewLine=false;;
     c) Color=''; ColorOff='';;
     d) decimal=${OPTARG};;
-    s) delimiter=${OPTARG};;
+    D) delimiter=${OPTARG};;
     r) raw=true;;
 
     h) HELP;;

@@ -143,46 +143,6 @@ alias starwars='telnet towel.blinkenlights.nl'
 alias starwars_ip='telnet 94.142.241.111'
 alias random-facts='wget randomfunfacts.com -O - 2>/dev/null | grep \<strong\> | sed "s;^.*<i>\(.*\)</i>.*$;\1;"'
 
-# Currency 
-currency-conv() {
-    declare -A cur
-    cur["gbp"]="GBP"
-    cur["pund"]="GBP"
-    cur["£"]="GBP"
-
-    cur["sek"]="SEK"
-    cur["kr"]="SEK"
-
-    cur["usd"]="USD"
-    cur["dollar"]="USD"
-    cur["$"]="USD"
-
-    cur["eur"]="EUR"
-    cur["euro"]="EUR"
-    cur["€"]="EUR"
-    
-    cur["btc"]="BTC"
-    cur["bitcoin"]="BTC"
-    cur["฿"]="BTC"
-    
-    if [[ $1 = *[[:digit:]]* && $2 != "" && $3 != "" ]]; then
-        for i in $2
-        do
-            wget -qO- "http://www.google.com/finance/converter?a=$1&from=${cur[${i,,}]}&to=${cur[${3,,}]}" |  sed '/res/!d;s/<[^>]*>//g';
-        done
-    elif [[ $1 = *[[:digit:]]* ]]; then
-        currency-conv $1 "USD EUR GBP BTC" SEK            
-    elif [[ $1 == "" ]]; then
-        currency-conv 1 "USD EUR GBP BTC" SEK
-    elif [[ $1 == "-l" ]]; then
-        echo -e "Swedish Krona: \t SEK (kr)"
-        echo -e "USE Dollar: \t USD ($)"
-        echo -e "British Pound: \t GBP (£)"
-        echo -e "European Euro: \t EUR (€)"
-        echo -e "Bitcoin: \t BTC (฿)"
-    fi
-}    
-
 # Weather
 weather() {
     if [ -z "$1" ]; then

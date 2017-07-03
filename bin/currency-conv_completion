@@ -1,0 +1,21 @@
+_currency-conv()
+{
+    COMPREPLY=()
+    local cmd=$1 cur=$2 pre=$3
+    
+    if [ $COMP_CWORD -eq 1 ] && [[ ${cur} == -* ]] ; then
+        opts="-h -V -l -c -n -d -D -r -v -f -t"
+        COMPREPLY=( $(compgen -W "${opts}" ${cur}) )
+        return 0
+    elif [ $COMP_CWORD -eq 1 ]; then
+        opts="1 1000 1000000 1000000000 2 3.1415926 5"
+        COMPREPLY=( $(compgen -W "${opts}" ${cur}) )
+        return 0
+    elif [ $COMP_CWORD -eq 2 ] || [ $COMP_CWORD -eq 3 ]; then
+        opts="AED AFN ALL AMD ANG AOA ARS AUD AWG AZN BAM BBD BDT BGN BHD BIF BMD BND BOB BRL BSD BTC BTN BWP BYN BYR BZD CAD CDF CHF CLF CLP CNH CNY COP CRC CUP CVE CZK DEM DJF DKK DOP DZD EGP ERN ETB EUR FIM FJD FKP FRF GBP GEL GHS GIP GMD GNF GTQ GYD HKD HNL HRK HTG HUF IDR IEP ILS INR IQD IRR ISK ITL JMD JOD JPY KES KGS KHR KMF KPW KRW KWD KYD KZT LAK LBP LKR LRD LSL LTL LVL LYD MAD MDL MGA MKD MMK MNT MOP MRO MUR MVR MWK MXN MYR MZN NAD NGN NIO NOK NPR NZD OMR PAB PEN PGK PHP PKG PKR PLN PYG QAR RON RSD RUB RWF SAR SBD SCR SDG SEK SGD SHP SKK SLL SOS SRD STD SVC SYP SZL THB TJS TMT TND TOP TRY TTD TWD TZS UAH UGX USD UYU UZS VEF VND VUV WST XAF XCD XDR XOF XPF YER ZAR ZMK ZMW ZWL KR £ € ฿ ₩ ₹ ₫ ₪ ¥ CN¥ $ NT$ NZ$ MX$ CA$ R$ A$"
+        COMPREPLY=( $(compgen -W "${opts}" ${cur^^}) )
+        return 0
+    fi
+    return 1
+} &&
+complete -F _currency-conv currency-conv
