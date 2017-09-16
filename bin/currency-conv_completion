@@ -8,7 +8,7 @@ _currency-conv()
         COMPREPLY=( $(compgen -W "${opts}" ${cur}) )
         return 0
     elif [ $COMP_CWORD -eq 1 ]; then
-        opts="1 1000 1000000 1000000000 2 3.1415926 5"
+        opts="1000 1000000 1000000000 3.1415926 2.71828 299792458 80 22 8080 2222 32 64 255 2147483647"
         COMPREPLY=( $(compgen -W "${opts}" ${cur}) )
         return 0
     elif [ $COMP_CWORD -eq 2 ] || [ $COMP_CWORD -eq 3 ]; then

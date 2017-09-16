@@ -168,6 +168,8 @@ alias update-bashrc='. ~/.bashrc'
 alias network-scan='nmap -sn'
 alias network-scan-192.168.0.1='nmap -sn 192.168.0.1/24'
 alias network-scan-192.168.1.1='nmap -sn 192.168.1.1/24'
+alias speed='bbk_cli' #https://support.bredbandskollen.se/support/solutions/articles/1000245679-bredbandskollen-f%C3%B6r-linux
+alias speed6='bbk_cli --v6'
 
 # Commands
 alias du='du -kh'    # Makes a more readable output.
