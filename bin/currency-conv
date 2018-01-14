@@ -272,24 +272,21 @@ HELP() {
 Currency converter
 
 Options:
- -n, Add new line
  -c, Remove collor
- 
- -l, List currencys 
+ -l, List suported currencys 
 
- -h, display this help and exit
- -V, output version information and exit
+ -h, Display help
+ -V, Version information
 
-For more details see ...(1).
-"
+For more details see ...(1)."
     exit 0;
 }
 LIST() {
-    echo -e "Currency Code:,Country Code:,Currency Name:\n$LIST" | column -t -s","
+    echo -e "Currency Code:,Country Code:,Currency Name:,Currency Symbol:,Name:\n$LIST" | column -t -s","
     exit 0;
 }
 VERSION() {
-    echo "currency-conv 0.1.2"
+    echo "currency-conv 0.2.1"
     exit 0;
 }
 
@@ -319,31 +316,48 @@ while getopts ':v:f:t:d:D:hrlcnV' flag; do
 done
 shift $((OPTIND-1))
 
-
+regDig='^[0-9]+([.][0-9]+)?'
+	
 if ! [ -t 0 ]; then
     #stdin
     while read -r line ; do
-        value="$(echo $line | cut -d' ' -f1)" 
+        value="$(echo $line | cut -d' ' -f1)"	    
         from="$(echo $line | cut -d' ' -f2)"
         to="$(echo $line | cut -d' ' -f3)"
+	if [[ $from == $to ]]; then
+	    to="";
+	fi
+	if [[ $value == $from ]]; then
+	    from="";    
+	fi
         currency $value $from $to
     done
 else
     args=( "$@" )
     n=0
     if [ -z "$value" ]; then
-        value="${args[$n]}"
-        ((n++))
+	if [[ "${args[$n]}" =~ $regDig ]] ; then
+            value="${args[$n]}"
+            ((n++))
+	else
+	    value=1
+	fi
     fi
     if [ -z "$from" ]; then
         from="${args[$n]}"
         ((n++))
     fi
+    
+    reTo='([t|T]([o|O]|(ill|ILL)))'
+    if [[ "${args[$n]}" =~ $regTo ]] ; then
+        ((n++))
+    fi
+    
     if [ -z "$to" ]; then
         to="${args[$n]}"
         ((n++))
     fi
-
+    
     if [ -z "$value" ]; then
         currency "$value" "$from" "$to"
     else
@@ -353,7 +367,6 @@ else
             currency "$v" "$from" "$to"
         done
     fi
-
 fi
 
 
