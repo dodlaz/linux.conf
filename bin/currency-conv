@@ -348,7 +348,6 @@ else
         ((n++))
     fi
     
-    reTo='to'
     if [[ "${args[$n]}" =~ [tT]([oO]|(ill|ILL)) ]] ; then
         ((n++))
     fi
