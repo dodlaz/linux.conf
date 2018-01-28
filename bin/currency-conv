@@ -348,8 +348,8 @@ else
         ((n++))
     fi
     
-    reTo='([t|T]([o|O]|(ill|ILL)))'
-    if [[ "${args[$n]}" =~ $regTo ]] ; then
+    reTo='to'
+    if [[ "${args[$n]}" =~ [tT]([oO]|(ill|ILL)) ]] ; then
         ((n++))
     fi
     
